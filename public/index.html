@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Five Nights at Epstein's</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: monospace;
+        }
+        iframe {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            display: block;
+        }
+        #controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            gap: 10px;
+        }
+        .ctrl-btn {
+            background: rgba(255, 215, 0, 0.85);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .ctrl-btn:hover {
+            background: rgba(255, 215, 0, 1);
+            transform: scale(1.05);
+        }
+        #splash {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s;
+        }
+        #splash h1 {
+            color: #ffd700;
+            font-size: clamp(24px, 5vw, 48px);
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        #play-btn {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            padding: 18px 50px;
+            font-family: monospace;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            animation: pulse 2s infinite;
+        }
+        #play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.6); }
+        }
+        #splash .hint {
+            color: #666;
+            font-size: 13px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Splash screen -->
+    <div id="splash">
+        <h1>🎮 FIVE NIGHTS AT EPSTEIN'S</h1>
+        <button id="play-btn" onclick="startGame()">▶ PLAY NOW</button>
+        <p class="hint">Click to load the game. Press F11 or the button for fullscreen.</p>
+    </div>
+
+    <!-- Controls overlay -->
+    <div id="controls" style="display: none;">
+        <button class="ctrl-btn" onclick="goFullscreen()" title="Fullscreen">⛶ FULLSCREEN</button>
+    </div>
+
+    <script>
+        let gameFrame = null;
+
+        function startGame() {
+            // Create iframe on click (avoids autoplay/load issues)
+            gameFrame = document.createElement('iframe');
+            gameFrame.id = 'game-frame';
+            gameFrame.src = 'https://www.rapidwebapp.com/games/five-nights-at-epsteins';
+            gameFrame.setAttribute('allowfullscreen', '');
+            gameFrame.setAttribute('allow', 'autoplay; fullscreen; gamepad; pointer-lock; keyboard-map');
+            gameFrame.setAttribute('scrolling', 'no');
+            gameFrame.style.cssText = 'width:100vw;height:100vh;border:none;display:block;';
+            document.body.appendChild(gameFrame);
+
+            // Fade out splash
+            const splash = document.getElementById('splash');
+            splash.style.opacity = '0';
+            setTimeout(function() {
+                splash.style.display = 'none';
+            }, 500);
+
+            // Show controls
+            document.getElementById('controls').style.display = 'flex';
+
+            // Try to go fullscreen automatically
+            goFullscreen();
+        }
+
+        function goFullscreen() {
+            const el = document.documentElement;
+            if (el.requestFullscreen) el.requestFullscreen();
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            else if (el.msRequestFullscreen) el.msRequestFullscreen();
+        }
+
+        // Auto-hide controls in fullscreen after inactivity
+        let hideTimer;
+        document.addEventListener('mousemove', function() {
+            const controls = document.getElementById('controls');
+            if (controls) {
+                controls.style.opacity = '1';
+                clearTimeout(hideTimer);
+                hideTimer = setTimeout(function() {
+                    if (document.fullscreenElement) {
+                        controls.style.opacity = '0.15';
+                    }
+                }, 3000);
+            }
+        });
+
+        document.addEventListener('fullscreenchange', function() {
+            const controls = document.getElementById('controls');
+            if (!document.fullscreenElement && controls) {
+                controls.style.opacity = '1';
+            }
+        });
+    </script>
+</body>
+</html>
